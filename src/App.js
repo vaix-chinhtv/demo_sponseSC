@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Wallet } from './near-wallet';
-import { Contract } from 'near-api-js';
+import { Contract, utils } from 'near-api-js';
 import { Buffer } from 'buffer';
 import { NearContract } from './near-interface';
 import { UsdtContract } from './usdt-interface';
@@ -32,6 +32,7 @@ function App() {
   const [amountUsdtSponse, setAmountUsdtSponse] = useState("")
   const [idEventUsdtMoreSponse, setIdEventUsdtMoreSponse] = useState("");
   const [amountUsdtMoreSponse, setAmountUsdtMoreSponse] = useState("")
+  const [idEventFinish, setIdEventFinish] = useState("")
   const [params, setParams] = useState("")
   const [transactionSuccess, setTransactionSuccess] = useState(false);
   const location = useLocation();
@@ -108,42 +109,54 @@ function App() {
   }
   const handleGetTotalTokenEvent = async (eventId) => {
     const result = await contract.getTotalTokenEvent(eventId);
+    if(result) {
+      result.total_near = utils.format.formatNearAmount(result.token_near);
+      result.total_usdt = utils.format.formatNearAmount(result.token_usdt);
+    }
     setTotalEvent(result);
   }
 
   const handleGetDetailEvent = async (eventId) => {
     const result = await contract.getDetailEvent(eventId);
-    setDetailtEvent(result)
+    if (result) {
+      const newResult = {
+        ...result,
+        total_near: utils.format.formatNearAmount(result.total_near),
+        total_usdt: utils.format.formatNearAmount(result.total_usdt)
+      }
+      setDetailtEvent(newResult)
+    }
   }
   const handleCreateEvent = async (eventId, nameEvent) => {
     const result = await contract.createEvent(eventId, nameEvent);
   }
+  const handleFinishEvent = async (eventId) => {
+    await contract.finishEvent(eventId);
+  }
   const handleSponseEvent = async (eventId, amount) => {
-    const result = await contract.sponseNative(eventId, amount);
+    const newAmount = utils.format.parseNearAmount(amount);
+    const result = await contract.sponseNative(eventId, newAmount);
   }
   const handleMoreSponseEvent = async (eventId, amount) => {
-    const result = await contract.moreSponseNative(eventId, amount);
+    const newAmount = utils.format.parseNearAmount(amount);
+    const result = await contract.moreSponseNative(eventId, newAmount);
   }
   const handleGetBalanceOf = async(accountId) => {
     const result = await contract2.getBalanceOf(accountId);
-    setBalance(result);
+    setBalance(utils.format.formatNearAmount(result));
   }
 
   const handleUsdtSponse = async (eventId, amount) => {
-    const result = await contract2.sponseUsdt(eventId, amount);
-    console.log("result: ", result);
+    const newAmount = utils.format.parseNearAmount(amount/1000000);
+    const result = await contract2.sponseUsdt(eventId, newAmount);
   }
 
   const handleUsdtMoreSponse = async (eventId, amount) => {
+    const newAmount = utils.format.parseNearAmount(amount/1000000);
     let newEventId = `more ${eventId}`
-    const result = await contract2.moreSponseUsdt(newEventId, amount);
-    console.log("ok");
-
+    await contract2.moreSponseUsdt(newEventId, newAmount);
 
   }
-
-
-
   return (
     <div className="App">
       <div>
@@ -251,6 +264,12 @@ function App() {
         <input placeholder='nameEvent' value={nameEvent} onChange={(e) => setNameEvent(e.target.value)} />
         <br />
       <button onClick={() => handleCreateEvent(idEvent, nameEvent)} >createEvent</button>
+      </div>
+
+      <div style={{ marginTop: "16px", padding: "10px", backgroundColor: "#ADC4CE" }}>
+        <input value={idEventFinish} onChange={(e) => setIdEventFinish(e.target.value)} placeholder='idEvent vd: 001' />
+        <br />
+        <button onClick={() => handleFinishEvent(idEvent)} >Finish Event</button>
       </div>
 
       <div style={{ marginTop: "16px", padding: "10px", backgroundColor: "#ADC4CE" }}>
