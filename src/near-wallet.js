@@ -1,7 +1,7 @@
 /* A helper file that simplifies using the wallet selector */
 
 // near api js
-import { providers } from "near-api-js";
+import { Near, providers } from "near-api-js";
 import { Buffer } from "buffer";
 // wallet selector UI
 import "@near-wallet-selector/modal-ui/styles.css";
@@ -125,9 +125,11 @@ export class Wallet {
     async getTransactionResult(txhash) {
         const { network } = this.walletSelector.options;
         const provider = new providers.JsonRpcProvider({ url: network.nodeUrl });
-
         // Retrieve transaction result from the network
-        const transaction = await provider.txStatus(txhash, "unnused");
+        const transaction = await provider.txStatus(txhash, this.wallet.accountId);
         return providers.getTransactionLastResult(transaction);
+    }
+    async getStatus(txhash) {
+        const res = await  providers.txStatus
     }
 }

@@ -4,6 +4,7 @@ import { Contract } from 'near-api-js';
 import { Buffer } from 'buffer';
 import { NearContract } from './near-interface';
 import { UsdtContract } from './usdt-interface';
+import { getTransactionLastResult } from 'near-api-js/lib/providers';
 
 function App() {
   const [balance, setBalance] = useState("");
@@ -38,7 +39,6 @@ function App() {
       createAccessKeyFor: "hkt2plats.testnet",
       network: "testnet"
     })
-    console.log("walleet: ", wallet)
 
     const contract = new NearContract({
       contractId: "hkt2plats.testnet",
@@ -99,12 +99,23 @@ function App() {
   }
 
   const handleUsdtSponse = async (eventId, amount) => {
-    await contract2.sponseUsdt(eventId, amount);
+    const result = await contract2.sponseUsdt(eventId, amount);
+    console.log("result: ", result);
   }
 
   const handleUsdtMoreSponse = async (eventId, amount) => {
     let newEventId = `more ${eventId}`
-    await contract2.moreSponseUsdt(newEventId, amount);
+    const result = await contract2.moreSponseUsdt(newEventId, amount);
+    console.log("ok")
+    setTimeout(async () => {
+      console.log("result: ", result);
+    }, 10000);
+  }
+
+  const [result, setResult] = useState();
+  const handleResult = async () => {
+    const result1 = await wallet.getTransactionResult(result);
+    console.log("ket qua: ", result1);
   }
 
   return (
@@ -256,8 +267,12 @@ function App() {
           <br />
           <input placeholder='Amount' value={amountUsdtMoreSponse} onChange={(e) => setAmountUsdtMoreSponse(e.target.value)} />
           <br />
-          <button onClick={() => handleUsdtMoreSponse(idEventUsdtMoreSponse, amountUsdtMoreSponse)} >sponse usdt</button>
+          <button onClick={() => handleUsdtMoreSponse(idEventUsdtMoreSponse, amountUsdtMoreSponse)} >more sponse usdt</button>
         </div>
+
+        <h1>Kiem tra thong tin transaction</h1>
+        <input value={result} onChange={(e) => setResult(e.target.value)} />
+        <button onClick={() => handleResult(result)} > kiemtra</button>
 
         </div>
 
