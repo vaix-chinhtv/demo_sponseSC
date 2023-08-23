@@ -5,7 +5,7 @@ import { Buffer } from 'buffer';
 import { NearContract } from './near-interface';
 import { UsdtContract } from './usdt-interface';
 import { getTransactionLastResult } from 'near-api-js/lib/providers';
-import { useLocation } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 
 function App() {
   const [balance, setBalance] = useState("");
@@ -130,6 +130,9 @@ function App() {
 
   return (
     <div className="App">
+      {params && <div>
+        <Link to={`https://explorer.testnet.near.org/transactions/${params}`} > CHeck Transaction</Link>
+      </div>}
       <div>
       <button onClick={() => wallet.signIn()} >Login</button>
       </div>
