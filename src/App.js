@@ -5,7 +5,7 @@ import { Buffer } from 'buffer';
 import { NearContract } from './near-interface';
 import { UsdtContract } from './usdt-interface';
 import { getTransactionLastResult } from 'near-api-js/lib/providers';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate} from 'react-router-dom';
 
 function App() {
   const [balance, setBalance] = useState("");
@@ -36,6 +36,8 @@ function App() {
   const [params, setParams] = useState("")
   const [transactionSuccess, setTransactionSuccess] = useState(false);
   const location = useLocation();
+  console.log("location: ", location.search)
+  const navigate = useNavigate();
 
   useEffect(() => {
     window.Buffer = window.Buffer || require("buffer").Buffer;
@@ -63,31 +65,23 @@ function App() {
   }, [])
 
   useEffect(() => {
-    console.log("location search:",location.search);
-    if(location.search.split("=")[1]) {
+    if(!location.search.includes("error") && location.search.split("=")[1]) {
       setParams(location.search.split("=")[1])
     }
-    // const status = await 
-    // setTransactionSuccess(status);
-
-
   }, [location.search])
 
   useEffect(() => {
     console.log(wallet);
-    if (wallet !== undefined) {
       const status = async () => {
-        console.log("params:",params);
+        if (location.search.includes("error")) {
+          navigate("/")
+          return;
+        }
         const data = await wallet.getTransactionResult(params);
-        console.log("status",data);
         return data;
       }
-      
       setTransactionSuccess(status);
-    }
-
-  
-  },[params])
+  },[location.search])
 
   const handleGetAllEvent = async() => {
     const result = await contract.getAllEvents();
@@ -109,23 +103,12 @@ function App() {
   }
   const handleGetTotalTokenEvent = async (eventId) => {
     const result = await contract.getTotalTokenEvent(eventId);
-    if(result) {
-      result.total_near = utils.format.formatNearAmount(result.token_near);
-      result.total_usdt = utils.format.formatNearAmount(result.token_usdt);
-    }
     setTotalEvent(result);
   }
 
   const handleGetDetailEvent = async (eventId) => {
     const result = await contract.getDetailEvent(eventId);
-    if (result) {
-      const newResult = {
-        ...result,
-        total_near: utils.format.formatNearAmount(result.total_near),
-        total_usdt: utils.format.formatNearAmount(result.total_usdt)
-      }
-      setDetailtEvent(newResult)
-    }
+      setDetailtEvent(result)
   }
   const handleCreateEvent = async (eventId, nameEvent) => {
     const result = await contract.createEvent(eventId, nameEvent);
