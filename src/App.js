@@ -131,7 +131,7 @@ function App() {
   return (
     <div className="App">
       {params && <div>
-        <Link to={`https://explorer.testnet.near.org/transactions/${params}`} > CHeck Transaction</Link>
+        <Link to={`https://explorer.testnet.near.org/transactions/${params}`} target='_blank' > CHeck Transaction</Link>
       </div>}
       <div>
       <button onClick={() => wallet.signIn()} >Login</button>
