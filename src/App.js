@@ -5,6 +5,7 @@ import { Buffer } from 'buffer';
 import { NearContract } from './near-interface';
 import { UsdtContract } from './usdt-interface';
 import { getTransactionLastResult } from 'near-api-js/lib/providers';
+import { useLocation } from 'react-router-dom';
 
 function App() {
   const [balance, setBalance] = useState("");
@@ -31,6 +32,8 @@ function App() {
   const [amountUsdtSponse, setAmountUsdtSponse] = useState("")
   const [idEventUsdtMoreSponse, setIdEventUsdtMoreSponse] = useState("");
   const [amountUsdtMoreSponse, setAmountUsdtMoreSponse] = useState("")
+  const [params, setParams] = useState("")
+  const location = useLocation();
 
   useEffect(() => {
     window.Buffer = window.Buffer || require("buffer").Buffer;
@@ -56,6 +59,12 @@ function App() {
    }
    loadWallet();
   }, [])
+
+  useEffect(() => {
+    if(location.search.split("=")[1]) {
+      setParams(location.search.split("=")[1])
+    }
+  }, [location.search])
 
   const handleGetAllEvent = async() => {
     const result = await contract.getAllEvents();
@@ -117,6 +126,7 @@ function App() {
     const result1 = await wallet.getTransactionResult(result);
     console.log("ket qua: ", result1);
   }
+
 
   return (
     <div className="App">
@@ -269,11 +279,6 @@ function App() {
           <br />
           <button onClick={() => handleUsdtMoreSponse(idEventUsdtMoreSponse, amountUsdtMoreSponse)} >more sponse usdt</button>
         </div>
-
-        <h1>Kiem tra thong tin transaction</h1>
-        <input value={result} onChange={(e) => setResult(e.target.value)} />
-        <button onClick={() => handleResult(result)} > kiemtra</button>
-
         </div>
 
     </div>
