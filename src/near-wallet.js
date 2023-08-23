@@ -118,7 +118,6 @@ export class Wallet {
                 },
             ],
         });
-        return await this.getTransactionResult(result.transaction.hash);
     }
 
     // Get transaction result from the network
@@ -126,10 +125,16 @@ export class Wallet {
         const { network } = this.walletSelector.options;
         const provider = new providers.JsonRpcProvider({ url: network.nodeUrl });
         // Retrieve transaction result from the network
-        const transaction = await provider.txStatus(txhash, this.wallet.accountId);
-        return providers.getTransactionLastResult(transaction);
-    }
-    async getStatus(txhash) {
-        const res = await  providers.txStatus
+        const response  = await provider.txStatus(txhash, this.wallet.accountId);
+        if (response.status == "Succeeded") {
+            console.log("Transaction is successful")
+            return true;
+        }
+        else 
+        {
+            console.log("Transaction is error")
+            return false;
+        }
+        
     }
 }
