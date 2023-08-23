@@ -118,7 +118,7 @@ export class Wallet {
                 },
             ],
         });
-        return await this.getTransactionResult(result.transaction.hash);
+        //return await this.getTransactionResult(result.transaction.hash);
     }
 
     // Get transaction result from the network
@@ -127,7 +127,16 @@ export class Wallet {
         const provider = new providers.JsonRpcProvider({ url: network.nodeUrl });
 
         // Retrieve transaction result from the network
-        const transaction = await provider.txStatus(txhash, "unnused");
-        return providers.getTransactionLastResult(transaction);
+        const res = await provider.txStatus(txhash, this.accountId);
+        //return providers.getTransactionLastResult(transaction);
+        if (res.status.SuccessValue !== undefined){
+            return true;
+        
+        }
+        else {
+            return false;
+        }
+
+        //console.log("status",`${atob(res.status.SuccessValue)}`.replace(/\"/g, ''))
     }
 }

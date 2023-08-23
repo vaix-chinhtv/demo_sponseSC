@@ -33,6 +33,7 @@ function App() {
   const [idEventUsdtMoreSponse, setIdEventUsdtMoreSponse] = useState("");
   const [amountUsdtMoreSponse, setAmountUsdtMoreSponse] = useState("")
   const [params, setParams] = useState("")
+  const [transactionSuccess, setTransactionSuccess] = useState(false);
   const location = useLocation();
 
   useEffect(() => {
@@ -61,10 +62,31 @@ function App() {
   }, [])
 
   useEffect(() => {
+    console.log("location search:",location.search);
     if(location.search.split("=")[1]) {
       setParams(location.search.split("=")[1])
     }
+    // const status = await 
+    // setTransactionSuccess(status);
+
+
   }, [location.search])
+
+  useEffect(() => {
+    console.log(wallet);
+    if (wallet !== undefined) {
+      const status = async () => {
+        console.log("params:",params);
+        const data = await wallet.getTransactionResult(params);
+        console.log("status",data);
+        return data;
+      }
+      
+      setTransactionSuccess(status);
+    }
+
+  
+  },[params])
 
   const handleGetAllEvent = async() => {
     const result = await contract.getAllEvents();
@@ -115,24 +137,15 @@ function App() {
   const handleUsdtMoreSponse = async (eventId, amount) => {
     let newEventId = `more ${eventId}`
     const result = await contract2.moreSponseUsdt(newEventId, amount);
-    console.log("ok")
-    setTimeout(async () => {
-      console.log("result: ", result);
-    }, 10000);
+    console.log("ok");
+
+
   }
 
-  const [result, setResult] = useState();
-  const handleResult = async () => {
-    const result1 = await wallet.getTransactionResult(result);
-    console.log("ket qua: ", result1);
-  }
 
 
   return (
     <div className="App">
-      {params && <div>
-        <Link to={`https://explorer.testnet.near.org/transactions/${params}`} target='_blank' > CHeck Transaction</Link>
-      </div>}
       <div>
       <button onClick={() => wallet.signIn()} >Login</button>
       </div>
