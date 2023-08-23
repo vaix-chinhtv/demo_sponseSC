@@ -146,7 +146,6 @@ function App() {
 
   return (
     <div className="App">
-
       <div>
       <button onClick={() => wallet.signIn()} >Login</button>
       </div>
